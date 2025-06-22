@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Stats Cards -->
+        <div class="col-md-4 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ applications.count }}</h4>
+                            <p class="mb-0">Applications</p>
+                        </div>
+                        <i class="fas fa-file-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ bookmarks.count }}</h4>
+                            <p class="mb-0">Bookmarks</p>
+                        </div>
+                        <i class="fas fa-bookmark fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ applications|length }}</h4>
+                            <p class="mb-0">Active</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>My Applications</h5>
+                </div>
+                <div class="card-body">
+                    {% if applications %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Job Title</th>
+                                        <th>Company</th>
+                                        <th>Applied Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in applications %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'job_detail' application.job.id %}" class="text-decoration-none">
+                                                    {{ application.job.title }}
+                                                </a>
+                                            </td>
+                                            <td>{{ application.job.company.name }}</td>
+                                            <td>{{ application.applied_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if application.status == 'accepted' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'shortlisted' %}warning{% else %}secondary{% endif %}">
+                                                    {{ application.status|title }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'job_detail' application.job.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5>No applications yet</h5>
+                            <p class="text-muted">Start applying to jobs to see your applications here.</p>
+                            <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookmarks Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bookmark me-2"></i>Bookmarked Jobs</h5>
+                </div>
+                <div class="card-body">
+                    {% if bookmarks %}
+                        <div class="row">
+                            {% for bookmark in bookmarks %}
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card job-card h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ bookmark.job.title }}</h6>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-building me-1"></i>{{ bookmark.job.company.name }}
+                                            </p>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-map-marker-alt me-1"></i>{{ bookmark.job.location }}
+                                            </p>
+                                            <div class="mb-3">
+                                                <span class="category-badge">{{ bookmark.job.category.name }}</span>
+                                                <span class="badge bg-secondary ms-1">{{ bookmark.job.employment_type|title }}</span>
+                                            </div>
+                                            {% if bookmark.job.salary_min and bookmark.job.salary_max %}
+                                                <p class="salary-text mb-3">
+                                                    ${{ bookmark.job.salary_min|floatformat:0 }} - ${{ bookmark.job.salary_max|floatformat:0 }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer bg-transparent border-0">
+                                            <a href="{% url 'job_detail' bookmark.job.id %}" class="btn btn-primary btn-sm">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bookmark fa-3x text-muted mb-3"></i>
+                            <h5>No bookmarks yet</h5>
+                            <p class="text-muted">Bookmark jobs you're interested in to save them for later.</p>
+                            <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'job_list' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search me-2"></i>Browse Jobs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-user-edit me-2"></i>Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'my_applications' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-file-alt me-2"></i>View Applications
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'my_bookmarks' %}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-bookmark me-2"></i>View Bookmarks
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

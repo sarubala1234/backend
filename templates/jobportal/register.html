@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - JobPortal{% endblock %}
+
+{% block content %}
+<!-- Hero Section for Registration -->
+<section class="hero-section py-5" style="background: var(--gradient-primary);">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-12 fade-in">
+                <h1 class="hero-title">Join Our Community</h1>
+                <p class="hero-subtitle">Create your account and start your journey towards your dream career</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card registration-card shadow-lg border-0 bounce-in">
+                <div class="card-header text-center bg-gradient-primary text-white">
+                    <div class="registration-icon mb-3">
+                        <i class="fas fa-user-plus fa-3x"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">Create Your Account</h3>
+                    <p class="mb-0 opacity-75">Join thousands of professionals</p>
+                </div>
+                <div class="card-body p-5">
+                    <form method="post" class="registration-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="form-floating">
+                                    {{ form.first_name }}
+                                    <label for="{{ form.first_name.id_for_label }}">
+                                        <i class="fas fa-user me-2"></i>First Name
+                                    </label>
+                                </div>
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="form-floating">
+                                    {{ form.last_name }}
+                                    <label for="{{ form.last_name.id_for_label }}">
+                                        <i class="fas fa-user me-2"></i>Last Name
+                                    </label>
+                                </div>
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                {{ form.username }}
+                                <label for="{{ form.username.id_for_label }}">
+                                    <i class="fas fa-at me-2"></i>Username
+                                </label>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                {{ form.email }}
+                                <label for="{{ form.email.id_for_label }}">
+                                    <i class="fas fa-envelope me-2"></i>Email Address
+                                </label>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                {{ form.password1 }}
+                                <label for="{{ form.password1.id_for_label }}">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.password1.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                {{ form.password2 }}
+                                <label for="{{ form.password2.id_for_label }}">
+                                    <i class="fas fa-lock me-2"></i>Confirm Password
+                                </label>
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="text-danger small mt-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.password2.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-4 registration-btn">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                        
+                        <div class="text-center">
+                            <p class="mb-0 text-muted">
+                                Already have an account? 
+                                <a href="{% url 'login' %}" class="text-decoration-none fw-bold">Login here</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4 slide-in-left">
+                <div class="employer-card">
+                    <i class="fas fa-building fa-2x text-primary mb-3"></i>
+                    <h5 class="fw-bold">Are you an employer?</h5>
+                    <p class="text-muted mb-3">Register your company and start posting amazing job opportunities</p>
+                    <a href="{% url 'register_company' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-2"></i>Register Company
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registration-card {
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .registration-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .bg-gradient-primary {
+        background: var(--gradient-primary) !important;
+        border: none;
+        padding: 2rem;
+    }
+
+    .registration-icon {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .registration-form .form-floating > .form-control {
+        padding: 1rem 0.75rem;
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+        border-radius: 15px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .registration-form .form-floating > .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .registration-form .form-floating > label {
+        padding: 1rem 0.75rem;
+        color: var(--text-light);
+    }
+
+    .registration-btn {
+        border-radius: 25px;
+        padding: 15px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .registration-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .employer-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: var(--shadow-light);
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .employer-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+        font-weight: 500;
+    }
+
+    .text-danger i {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    /* Success animation for form submission */
+    .registration-form.submitted {
+        animation: successPulse 0.5s ease-in-out;
+    }
+
+    @keyframes successPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Add floating label animation
+    $('.form-floating input').focus(function() {
+        $(this).parent().addClass('focused');
+    }).blur(function() {
+        if (!$(this).val()) {
+            $(this).parent().removeClass('focused');
+        }
+    });
+
+    // Form submission animation
+    $('.registration-form').submit(function() {
+        $(this).addClass('submitted');
+        $('.registration-btn').html('<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...');
+    });
+
+    // Password strength indicator
+    $('#id_password1').on('input', function() {
+        var password = $(this).val();
+        var strength = 0;
+        
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]/)) strength++;
+        if (password.match(/[A-Z]/)) strength++;
+        if (password.match(/[0-9]/)) strength++;
+        if (password.match(/[^a-zA-Z0-9]/)) strength++;
+        
+        var strengthText = '';
+        var strengthClass = '';
+        
+        switch(strength) {
+            case 0:
+            case 1:
+                strengthText = 'Very Weak';
+                strengthClass = 'text-danger';
+                break;
+            case 2:
+                strengthText = 'Weak';
+                strengthClass = 'text-warning';
+                break;
+            case 3:
+                strengthText = 'Medium';
+                strengthClass = 'text-info';
+                break;
+            case 4:
+                strengthText = 'Strong';
+                strengthClass = 'text-success';
+                break;
+            case 5:
+                strengthText = 'Very Strong';
+                strengthClass = 'text-success';
+                break;
+        }
+        
+        if (password.length > 0) {
+            if (!$('#password-strength').length) {
+                $(this).after('<div id="password-strength" class="mt-2 small"></div>');
+            }
+            $('#password-strength').html('<i class="fas fa-shield-alt me-1"></i>Password Strength: <span class="' + strengthClass + '">' + strengthText + '</span>');
+        } else {
+            $('#password-strength').remove();
+        }
+    });
+});
+</script>
+{% endblock %} 

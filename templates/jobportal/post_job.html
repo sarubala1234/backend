@@ -1,0 +1,505 @@
+{% extends 'base.html' %}
+
+{% block title %}Post a Job - JobPortal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .post-job-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .post-job-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .form-step {
+        display: none;
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 10px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .step-circle.active {
+        background: #667eea;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .step-circle.completed {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step-line {
+        flex: 1;
+        height: 2px;
+        background: #e9ecef;
+        margin: 19px 0;
+        transition: background 0.3s ease;
+    }
+    
+    .step-line.active {
+        background: #667eea;
+    }
+    
+    .form-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.95);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        transition: all 0.3s ease;
+        font-size: 16px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.3rem rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .btn-modern {
+        border-radius: 12px;
+        padding: 15px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: none;
+    }
+    
+    .btn-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn-modern:hover::before {
+        left: 100%;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    
+    .form-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .feature-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        border-color: #667eea;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        margin: 0 auto 15px;
+    }
+    
+    .floating-shapes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .shape {
+        position: absolute;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        animation: float-shape 6s ease-in-out infinite;
+    }
+    
+    .shape:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .shape:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        top: 60%;
+        right: 15%;
+        animation-delay: 2s;
+    }
+    
+    @keyframes float-shape {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(180deg); }
+    }
+    
+    .section-divider {
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
+        margin: 30px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="post-job-hero py-5 position-relative">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white">
+                <h1 class="display-4 fw-bold mb-4">Post Your Job</h1>
+                <p class="lead mb-4">Reach thousands of qualified candidates and find the perfect fit for your team. Our streamlined process makes posting jobs simple and effective.</p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="feature-icon me-3">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Reach Top Talent</h6>
+                                <p class="mb-0 opacity-75">Access qualified professionals</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="feature-icon me-3">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Quick & Easy</h6>
+                                <p class="mb-0 opacity-75">Post jobs in minutes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-briefcase fa-8x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h5>High Visibility</h5>
+                    <p class="text-muted">Your job will be seen by thousands of active job seekers</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <h5>Smart Matching</h5>
+                    <p class="text-muted">Our algorithm matches jobs with qualified candidates</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>Analytics</h5>
+                    <p class="text-muted">Track views, applications, and performance metrics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Job Posting Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="form-card">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-5">
+                            <i class="fas fa-plus-circle text-primary me-3"></i>
+                            Create Your Job Posting
+                        </h2>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Basic Information -->
+                            <h4 class="mb-4">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Basic Information
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-4">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">
+                                        <i class="fas fa-briefcase me-2"></i>Job Title
+                                    </label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text">Be specific and descriptive (e.g., "Senior Python Developer")</div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tags me-2"></i>Category
+                                    </label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                        <div class="text-danger small">{{ form.category.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Location
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger small">{{ form.location.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.employment_type.id_for_label }}" class="form-label">
+                                        <i class="fas fa-clock me-2"></i>Employment Type
+                                    </label>
+                                    {{ form.employment_type }}
+                                    {% if form.employment_type.errors %}
+                                        <div class="text-danger small">{{ form.employment_type.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="section-divider"></div>
+                            
+                            <!-- Job Details -->
+                            <h4 class="mb-4">
+                                <i class="fas fa-file-alt text-primary me-2"></i>
+                                Job Description & Requirements
+                            </h4>
+                            
+                            <div class="mb-4">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    <i class="fas fa-align-left me-2"></i>Job Description
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">Describe the role, responsibilities, and what makes this position exciting</div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.requirements.id_for_label }}" class="form-label">
+                                        <i class="fas fa-list-check me-2"></i>Requirements
+                                    </label>
+                                    {{ form.requirements }}
+                                    {% if form.requirements.errors %}
+                                        <div class="text-danger small">{{ form.requirements.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text">List the skills and experience needed</div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.responsibilities.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tasks me-2"></i>Responsibilities
+                                    </label>
+                                    {{ form.responsibilities }}
+                                    {% if form.responsibilities.errors %}
+                                        <div class="text-danger small">{{ form.responsibilities.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text">Outline the key duties of the role</div>
+                                </div>
+                            </div>
+                            
+                            <div class="section-divider"></div>
+                            
+                            <!-- Compensation & Details -->
+                            <h4 class="mb-4">
+                                <i class="fas fa-dollar-sign text-primary me-2"></i>
+                                Compensation & Additional Details
+                            </h4>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.salary_min.id_for_label }}" class="form-label">
+                                        <i class="fas fa-dollar-sign me-2"></i>Minimum Salary
+                                    </label>
+                                    {{ form.salary_min }}
+                                    {% if form.salary_min.errors %}
+                                        <div class="text-danger small">{{ form.salary_min.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.salary_max.id_for_label }}" class="form-label">
+                                        <i class="fas fa-dollar-sign me-2"></i>Maximum Salary
+                                    </label>
+                                    {{ form.salary_max }}
+                                    {% if form.salary_max.errors %}
+                                        <div class="text-danger small">{{ form.salary_max.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.experience_level.id_for_label }}" class="form-label">
+                                        <i class="fas fa-star me-2"></i>Experience Level
+                                    </label>
+                                    {{ form.experience_level }}
+                                    {% if form.experience_level.errors %}
+                                        <div class="text-danger small">{{ form.experience_level.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.deadline.id_for_label }}" class="form-label">
+                                        <i class="fas fa-calendar me-2"></i>Application Deadline
+                                    </label>
+                                    {{ form.deadline }}
+                                    {% if form.deadline.errors %}
+                                        <div class="text-danger small">{{ form.deadline.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    {{ form.is_remote }}
+                                    <label class="form-check-label" for="{{ form.is_remote.id_for_label }}">
+                                        <i class="fas fa-home me-2"></i>Remote work available
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-modern btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Post Job
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add form-control class to all form fields
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+        if (!element.classList.contains('form-control') && !element.classList.contains('form-select')) {
+            element.classList.add('form-control');
+        }
+    });
+    
+    // Add smooth animations
+    document.querySelectorAll('.form-control, .form-select').forEach(element => {
+        element.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        element.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %} 
