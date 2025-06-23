@@ -6,12 +6,12 @@ services:
     startCommand: gunicorn job.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: jobportal.settings
+        value: job.settings
       - key: SECRET_KEY
         value: django-insecure-87g4^#gkwt%c+(zdak=%=k&b^-!b%tl!5v1%$t21)m-mc6&f@_
       - key: DEBUG
         value: "False"
       - key: PYTHON_VERSION
-        value: 3.10
+        value: 3.10.13
       # Add your own environment variables here 
       
