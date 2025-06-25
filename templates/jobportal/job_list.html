@@ -1,31 +1,27 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Browse Jobs - JobPortal{% endblock %}
+{% block title %}Job Listings - JobPortal{% endblock %}
 
 {% block content %}
-<!-- Hero Section for Job List -->
-<section class="hero-section py-5" style="background: var(--gradient-secondary);">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-12 fade-in">
-                <h1 class="hero-title">Discover Amazing Opportunities</h1>
-                <p class="hero-subtitle">Find your next career move from thousands of job opportunities</p>
-            </div>
-        </div>
-    </div>
-</section>
-
 <div class="container py-5">
+    <h2 class="mb-4">Browse Jobs</h2>
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'save_search' %}" class="mb-4">
+            {% csrf_token %}
+            <input type="hidden" name="keyword" value="{{ request.GET.keyword }}">
+            <input type="hidden" name="location" value="{{ request.GET.location }}">
+            <input type="hidden" name="category" value="{{ request.GET.category }}">
+            <input type="hidden" name="employment_type" value="{{ request.GET.employment_type }}">
+            <input type="hidden" name="experience_level" value="{{ request.GET.experience_level }}">
+            <input type="hidden" name="is_remote" value="{{ request.GET.is_remote }}">
+            <input type="text" name="name" class="form-control d-inline w-auto" placeholder="Name this search" required>
+            <button type="submit" class="btn btn-success ms-2"><i class="fas fa-save me-1"></i>Save Search</button>
+        </form>
+    {% endif %}
     <div class="row">
-        <!-- Search Filters Sidebar -->
-        <div class="col-lg-3 mb-4 slide-in-left">
-            <div class="card filter-card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-filter me-2"></i>Smart Filters
-                    </h5>
-                </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <form method="get" action="{% url 'job_list' %}">
                         <div class="mb-4">
@@ -42,9 +38,17 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold">
-                                <i class="fas fa-briefcase me-2"></i>Category
+                                <i class="fas fa-briefcase me-2"></i>Category (Course/Job Type)
                             </label>
                             {% render_field search_form.category class="form-select" %}
+                            <div class="mt-2">
+                                <strong>All Job Courses:</strong>
+                                <ul class="list-unstyled mt-2">
+                                    {% for cat in search_form.fields.category.queryset %}
+                                        <li><span class="badge bg-secondary">{{ cat.name }} ({{ cat.jobs.count }})</span></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold">
@@ -59,164 +63,109 @@
                             {% render_field search_form.experience_level class="form-select" %}
                         </div>
                         <div class="mb-4">
-                            <div class="form-check custom-checkbox p-0">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-dollar-sign me-2"></i>Salary Range
+                            </label>
+                            <div class="input-group">
+                                {% render_field search_form.min_salary class="form-control" placeholder="Min Salary" %}
+                                <span class="input-group-text">-</span>
+                                {% render_field search_form.max_salary class="form-control" placeholder="Max Salary" %}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="form-check">
                                 {% render_field search_form.is_remote class="form-check-input" %}
-                                <label class="form-check-label fw-bold" for="{{ search_form.is_remote.id_for_label }}">
-                                    <i class="fas fa-home me-2"></i>Remote Only
+                                <label class="form-check-label" for="{{ search_form.is_remote.id_for_label }}">
+                                    Remote Only
                                 </label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 mb-3">
-                            <i class="fas fa-search me-2"></i>Apply Filters
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-sort me-2"></i>Sort By
+                            </label>
+                            <select name="sort" class="form-select">
+                                <option value="">Default</option>
+                                <option value="date">Newest</option>
+                                <option value="salary">Salary (High to Low)</option>
+                                <option value="title">Title (A-Z)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-search me-2"></i>Search
                         </button>
                         <a href="{% url 'job_list' %}" class="btn btn-outline-secondary w-100">
-                            <i class="fas fa-refresh me-2"></i>Clear Filters
+                            <i class="fas fa-times me-2"></i>Clear Filters
                         </a>
                     </form>
                 </div>
             </div>
         </div>
-
-        <!-- Job Listings -->
-        <div class="col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
-                <div>
-                    <h2 class="section-title mb-2">Job Opportunities</h2>
-                    <p class="text-muted mb-0">
-                        <i class="fas fa-briefcase me-2"></i>{{ total_jobs }} amazing opportunities found
-                    </p>
-                </div>
-                <div class="view-toggle">
-                    <button class="btn btn-outline-primary active" id="grid-view">
-                        <i class="fas fa-th-large me-2"></i>Grid
-                    </button>
-                    <button class="btn btn-outline-primary" id="list-view">
-                        <i class="fas fa-list me-2"></i>List
-                    </button>
-                </div>
-            </div>
-
-            {% if jobs %}
-                <div class="row" id="jobs-container">
-                    {% for job in jobs %}
-                        <div class="col-lg-6 col-md-12 mb-4 fade-in">
-                            <div class="card job-card h-100">
-                                <div class="card-body">
-                                    <div class="job-header mb-3">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <h5 class="card-title mb-0 fw-bold">
-                                                <a href="{% url 'job_detail' job.id %}" class="text-decoration-none job-title-link">
-                                                    {{ job.title }}
-                                                </a>
-                                            </h5>
-                                            {% if job.is_remote %}
-                                                <span class="remote-badge">
-                                                    <i class="fas fa-home me-1"></i>Remote
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="company-info mb-3">
-                                        <p class="text-muted mb-1">
-                                            <i class="fas fa-building me-2"></i>{{ job.company.name }}
-                                        </p>
-                                        <p class="text-muted mb-1">
-                                            <i class="fas fa-map-marker-alt me-2"></i>{{ job.location }}
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="job-tags mb-3">
-                                        <span class="category-badge">{{ job.category.name }}</span>
-                                        <span class="badge bg-light text-dark ms-2">{{ job.employment_type|title }}</span>
-                                        <span class="badge bg-info ms-2">{{ job.experience_level|title }}</span>
-                                    </div>
-                                    
-                                    {% if job.salary_min and job.salary_max %}
-                                        <p class="salary-text mb-3">
-                                            <i class="fas fa-dollar-sign me-1"></i>
-                                            ${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}
-                                        </p>
-                                    {% endif %}
-                                    
-                                    <p class="card-text text-muted mb-3">{{ job.description|truncatewords:25 }}</p>
-                                    
-                                    <div class="job-footer">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <small class="text-muted">
-                                                <i class="fas fa-clock me-1"></i>
-                                                Posted {{ job.created_at|timesince }} ago
-                                            </small>
-                                            
-                                            {% if user.is_authenticated %}
-                                                <button class="btn btn-outline-primary btn-sm bookmark-btn" 
-                                                        data-job-id="{{ job.id }}"
-                                                        data-bookmarked="{% if job in user.bookmarks.all %}true{% else %}false{% endif %}">
-                                                    <i class="fas fa-bookmark"></i>
-                                                    <span class="bookmark-text">
-                                                        {% if job in user.bookmarks.all %}Bookmarked{% else %}Bookmark{% endif %}
-                                                    </span>
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                        
-                                        <a href="{% url 'job_detail' job.id %}" class="btn btn-primary w-100 mt-3">
-                                            <i class="fas fa-eye me-2"></i>View Details
-                                        </a>
-                                    </div>
-                                </div>
+        <div class="col-md-8">
+            {% regroup jobs by category.name as job_category_list %}
+            {% for group in job_category_list %}
+                <h3 class="mb-3">{{ group.grouper }} Jobs <span class="badge bg-primary">{{ group.list|length }}</span></h3>
+                {% for job in group.list %}
+                    <div class="card job-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">{{ job.title }}</h5>
+                                <span class="category-badge">{{ job.category.name }}</span>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Pagination -->
-                {% if jobs.has_other_pages %}
-                    <nav aria-label="Job pagination" class="mt-5">
-                        <ul class="pagination justify-content-center">
-                            {% if jobs.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ jobs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                        <i class="fas fa-chevron-left me-2"></i>Previous
-                                    </a>
-                                </li>
-                            {% endif %}
-
-                            {% for num in jobs.paginator.page_range %}
-                                {% if jobs.number == num %}
-                                    <li class="page-item active">
-                                        <span class="page-link">{{ num }}</span>
-                                    </li>
-                                {% elif num > jobs.number|add:'-3' and num < jobs.number|add:'3' %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                            {{ num }}
-                                        </a>
-                                    </li>
+                            <div class="job-tags mb-3">
+                                <span class="badge bg-light text-dark ms-2">{{ job.employment_type|title }}</span>
+                                <span class="badge bg-info ms-2">{{ job.experience_level|title }}</span>
+                                {% if job.is_remote %}<span class="badge bg-success ms-2">Remote</span>{% endif %}
+                                {% if user.is_authenticated and job.id in applied_job_ids %}
+                                    <span class="badge bg-warning ms-2">Applied</span>
                                 {% endif %}
-                            {% endfor %}
-
-                            {% if jobs.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ jobs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                                        Next<i class="fas fa-chevron-right ms-2"></i>
-                                    </a>
-                                </li>
+                                {% if user.is_authenticated and job.id in bookmarked_job_ids %}
+                                    <span class="badge bg-danger ms-2">Bookmarked</span>
+                                {% endif %}
+                            </div>
+                            {% if job.salary_min and job.salary_max %}
+                                <p class="salary-text mb-3">
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    ${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}
+                                </p>
                             {% endif %}
-                        </ul>
-                    </nav>
-                {% endif %}
-            {% else %}
-                <div class="text-center py-5 fade-in">
-                    <div class="empty-state">
-                        <i class="fas fa-search fa-5x text-muted mb-4"></i>
-                        <h3 class="text-muted mb-3">No Jobs Found</h3>
-                        <p class="text-muted mb-4">Try adjusting your search criteria or browse all available opportunities.</p>
-                        <a href="{% url 'job_list' %}" class="btn btn-primary btn-lg">
-                            <i class="fas fa-list me-2"></i>View All Jobs
-                        </a>
+                            <p class="mb-2"><strong>Location:</strong> {{ job.location }}</p>
+                            <p class="mb-2"><strong>Requirements:</strong><br>{{ job.requirements|linebreaksbr }}</p>
+                            <p class="mb-2"><strong>Responsibilities:</strong><br>{{ job.responsibilities|linebreaksbr }}</p>
+                            <p class="card-text text-muted mb-3">{{ job.description|truncatewords:25 }}</p>
+                            <a href="{% url 'job_detail' job.id %}" class="btn btn-outline-primary">View Details</a>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
+            {% endfor %}
+            {% if jobs.paginator.num_pages > 1 %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if jobs.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ jobs.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        {% for num in jobs.paginator.page_range %}
+                            {% if jobs.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > jobs.number|add:'-3' and num < jobs.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if jobs.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ jobs.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ jobs.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             {% endif %}
         </div>
     </div>

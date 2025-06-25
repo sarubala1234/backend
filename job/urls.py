@@ -23,6 +23,7 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('jobportal.urls')),
+    # Keep Django's built-in auth URLs as fallback
     path('accounts/', include('django.contrib.auth.urls')),
     # Handle favicon requests
     path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.svg', permanent=True)),

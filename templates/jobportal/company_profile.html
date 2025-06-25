@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="card mb-4 p-3">
+        <h2>{{ company.name }}</h2>
+        {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="Logo" style="max-width:120px;">
+        {% endif %}
+        <p>{{ company.description }}</p>
+        {% if company.website %}
+            <p>Website: <a href="{{ company.website }}" target="_blank">{{ company.website }}</a></p>
+        {% endif %}
+    </div>
+    <h4>Open Jobs at {{ company.name }}</h4>
+    {% if jobs %}
+        <ul class="list-group mb-4">
+            {% for job in jobs %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ job.title }} ({{ job.location }})</span>
+                    <a href="{% url 'job_detail' job.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">No open jobs at this company.</div>
+    {% endif %}
+</div>
+{% endblock %} 

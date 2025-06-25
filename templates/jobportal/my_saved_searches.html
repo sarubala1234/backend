@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}My Saved Searches - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Saved Searches</h2>
+    {% if searches %}
+        <div class="list-group">
+            {% for search in searches %}
+                <div class="list-group-item mb-3">
+                    <h5>{{ search.name }}</h5>
+                    <p class="mb-1">Keyword: {{ search.keyword|default:'-' }}</p>
+                    <p class="mb-1">Location: {{ search.location|default:'-' }}</p>
+                    <p class="mb-1">Category: {{ search.category.name|default:'-' }}</p>
+                    <p class="mb-1">Employment Type: {{ search.employment_type|default:'-' }}</p>
+                    <p class="mb-1">Experience Level: {{ search.experience_level|default:'-' }}</p>
+                    <p class="mb-1">Remote: {{ search.is_remote|yesno:'Yes,No' }}</p>
+                    <a href="{% url 'job_list' %}?keyword={{ search.keyword }}&location={{ search.location }}&category={{ search.category.id }}&employment_type={{ search.employment_type }}&experience_level={{ search.experience_level }}&is_remote={{ search.is_remote }}" class="btn btn-outline-primary mt-2">Run Search</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">You have not saved any searches yet.</div>
+    {% endif %}
+</div>
+{% endblock %} 

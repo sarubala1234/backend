@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookmarks - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Bookmarked Jobs</h2>
+    {% if bookmarks %}
+        <div class="list-group">
+            {% for bookmark in bookmarks %}
+                <div class="list-group-item mb-3">
+                    <h5>{{ bookmark.job.title }}</h5>
+                    <p class="mb-1">Company: {{ bookmark.job.company.name }}</p>
+                    <p class="mb-1">Location: {{ bookmark.job.location }}</p>
+                    <p class="mb-1">Bookmarked on: {{ bookmark.created_at|date:'M d, Y' }}</p>
+                    <a href="{% url 'job_detail' bookmark.job.id %}" class="btn btn-sm btn-outline-primary mt-2">View Job</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">You have not bookmarked any jobs yet.</div>
+    {% endif %}
+</div>
+{% endblock %} 

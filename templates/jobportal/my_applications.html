@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications - JobPortal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Job Applications</h2>
+    {% if applications %}
+        <div class="list-group">
+            {% for application in applications %}
+                <div class="list-group-item mb-3">
+                    <h5>{{ application.job.title }}</h5>
+                    <p class="mb-1">Company: {{ application.job.company.name }}</p>
+                    <p class="mb-1">Status: {{ application.status|default:'Submitted' }}</p>
+                    <p class="mb-1">Applied on: {{ application.created_at|date:'M d, Y' }}</p>
+                    <a href="{% url 'job_detail' application.job.id %}" class="btn btn-sm btn-outline-primary mt-2">View Job</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">You have not applied to any jobs yet.</div>
+    {% endif %}
+</div>
+{% endblock %} 

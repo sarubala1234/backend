@@ -30,6 +30,13 @@
                     <form method="post" class="registration-form">
                         {% csrf_token %}
                         
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Please correct the errors below.
+                            </div>
+                        {% endif %}
+                        
                         <div class="row">
                             <div class="col-md-6 mb-4">
                                 <div class="form-floating">
@@ -99,6 +106,7 @@
                                     <i class="fas fa-exclamation-circle me-1"></i>{{ form.password1.errors.0 }}
                                 </div>
                             {% endif %}
+                            <div id="password-strength" class="mt-2 small"></div>
                         </div>
                         
                         <div class="mb-4">
@@ -173,6 +181,11 @@
         100% { transform: scale(1); }
     }
 
+    /* Fixed form-floating styles */
+    .registration-form .form-floating {
+        position: relative;
+    }
+
     .registration-form .form-floating > .form-control {
         padding: 1rem 0.75rem;
         height: calc(3.5rem + 2px);
@@ -180,17 +193,48 @@
         border-radius: 15px;
         border: 2px solid #e9ecef;
         transition: all 0.3s ease;
+        background-color: #fff;
     }
 
     .registration-form .form-floating > .form-control:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         transform: translateY(-2px);
+        background-color: #fff;
     }
 
     .registration-form .form-floating > label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
         padding: 1rem 0.75rem;
-        color: var(--text-light);
+        pointer-events: none;
+        border: 1px solid transparent;
+        transform-origin: 0 0;
+        transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+        color: #6c757d;
+        background-color: transparent;
+    }
+
+    /* When input has value or is focused, move label up */
+    .registration-form .form-floating > .form-control:focus ~ label,
+    .registration-form .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        opacity: 0.65;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        background-color: #fff;
+        padding: 0 0.5rem;
+        height: auto;
+        line-height: 1.5;
+        border-radius: 0.375rem;
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    /* Ensure input text is always visible */
+    .registration-form .form-floating > .form-control {
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
     }
 
     .registration-btn {
@@ -246,6 +290,15 @@
         0% { transform: scale(1); }
         50% { transform: scale(1.02); }
         100% { transform: scale(1); }
+    }
+
+    /* Additional fixes for better text visibility */
+    .registration-form .form-floating > .form-control::placeholder {
+        color: transparent;
+    }
+
+    .registration-form .form-floating > .form-control:focus::placeholder {
+        color: #6c757d;
     }
 </style>
 {% endblock %}

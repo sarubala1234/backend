@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h2 class="card-title">{{ Fullstack Developement}}</h2>
+                        <h2 class="card-title">{{ job.title }}</h2>
                         {% if user.is_authenticated %}
                             <button class="btn btn-outline-primary bookmark-btn" 
                                     data-job-id="{{ job.id }}"
@@ -99,7 +99,18 @@
                     <h5 class="mb-0"><i class="fas fa-building me-2"></i>Company</h5>
                 </div>
                 <div class="card-body">
-                    <h6>{{ job.company.name }}</h6>
+                    <div class="mb-3">
+                        <h5>Company:</h5>
+                        <div class="d-flex align-items-center">
+                            {% if job.company.logo %}
+                                <img src="{{ job.company.logo.url }}" alt="Logo" style="max-width:60px;max-height:60px;" class="me-3">
+                            {% endif %}
+                            <div>
+                                <strong>{{ job.company.name }}</strong><br>
+                                <a href="{% url 'company_profile' job.company.id %}" class="btn btn-link p-0">View Company Profile</a>
+                            </div>
+                        </div>
+                    </div>
                     <p class="text-muted">{{ job.company.description|truncatewords:20 }}</p>
                     <p class="text-muted mb-2">
                         <i class="fas fa-map-marker-alt me-1"></i>{{ job.company.location }}
